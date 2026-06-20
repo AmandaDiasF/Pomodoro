@@ -7,56 +7,46 @@
     android:background="@color/bg_white">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbarConfiguracoes"
+        android:id="@+id/toolbarCadastro"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/coral_primary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:title="Configurações" />
+        app:title="Criar Conta" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="24dp"
+        android:gravity="center_vertical">
 
         <EditText
-            android:id="@+id/etTempoFoco"
+            android:id="@+id/etNovoUsuario"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:hint="Tempo de foco (min)"
+            android:hint="Escolha um usuário"
             android:textColorHint="@color/text_muted"
             android:textColor="@color/text_dark"
-            android:inputType="number" />
+            android:inputType="text" />
 
         <EditText
-            android:id="@+id/etPausaCurta"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:hint="Pausa curta (min)"
-            android:textColorHint="@color/text_muted"
-            android:textColor="@color/text_dark"
-            android:inputType="number" />
-
-        <EditText
-            android:id="@+id/etPausaLonga"
+            android:id="@+id/etNovaSenha"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="Pausa longa (min)"
+            android:hint="Digite uma senha"
             android:textColorHint="@color/text_muted"
             android:textColor="@color/text_dark"
-            android:inputType="number" />
+            android:inputType="textPassword" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSalvarConfiguracoes"
+            android:id="@+id/btnFinalizarCadastro"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:layout_marginTop="24dp"
-            android:text="Salvar Configurações"
+            android:text="Cadastrar e Entrar"
             android:textSize="16sp"
             android:textStyle="bold"
             app:backgroundTint="@color/coral_light"
