@@ -36,9 +36,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:text="Ainda não há dados para o relatório."
             android:textColor="@color/text_muted"
-            android:textSize="16sp"
-            android:text="Ainda não há dados para o relatório." />
+            android:textSize="16sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCompartilharRelatorio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Compartilhar Relatório"
+            android:textColor="@color/bg_white"
+            app:backgroundTint="@color/coral_primary"
+            app:cornerRadius="10dp" />
 
     </LinearLayout>
 </LinearLayout>

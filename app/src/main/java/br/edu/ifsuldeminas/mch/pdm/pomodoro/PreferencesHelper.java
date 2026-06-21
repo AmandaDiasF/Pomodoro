@@ -29,11 +29,19 @@ public class PreferencesHelper {
         return sharedPreferences.getString("nome_usuario", "");
     }
 
+    public String getSenha() {
+        return sharedPreferences.getString("senha", "");
+    }
+
+    public void setLogin(boolean isLoggedIn) {
+        editor.putBoolean("is_logged_in", isLoggedIn);
+        editor.apply();
+    }
+
     // --- CONFIGURAÇÕES DO POMODORO ---
-    public void salvarConfiguracoesTempo(int tempoFoco, int pausaCurta, int pausaLonga) {
+    public void salvarConfiguracoesTempo(int tempoFoco, int pausaCurta) {
         editor.putInt("tempo_foco", tempoFoco);
         editor.putInt("pausa_curta", pausaCurta);
-        editor.putInt("pausa_longa", pausaLonga);
         editor.apply();
     }
 
@@ -43,9 +51,5 @@ public class PreferencesHelper {
 
     public int getPausaCurta() {
         return sharedPreferences.getInt("pausa_curta", 5);
-    }
-
-    public int getPausaLonga() {
-        return sharedPreferences.getInt("pausa_longa", 15);
     }
 }

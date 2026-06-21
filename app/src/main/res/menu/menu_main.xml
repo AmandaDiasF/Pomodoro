@@ -16,5 +16,8 @@
     <item
         android:id="@+id/menu_compartilhar"
         android:title="Compartilhar" />
+    <item
+        android:id="@+id/menu_sair"
+        android:title="Sair" />
 
 </menu>
