@@ -1,23 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <item
-        android:id="@+id/menu_historico"
-        android:title="Histórico" />
-
-    <item
-        android:id="@+id/menu_relatorio"
-        android:title="Relatório" />
-
-    <item
-        android:id="@+id/menu_configuracoes"
-        android:title="Configurações" />
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/menu_compartilhar"
-        android:title="Compartilhar" />
+        android:title="Partilhar"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/menu_sair"
-        android:title="Sair" />
-
+        android:title="Sair"
+        app:showAsAction="never" />
 </menu>

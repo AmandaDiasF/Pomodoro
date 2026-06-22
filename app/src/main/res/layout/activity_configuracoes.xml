@@ -1,59 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/bg_white">
+    android:background="@color/bg_white"
+    android:fitsSystemWindows="true">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarConfiguracoes"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        android:layout_marginTop="24dp"
         android:background="@color/coral_primary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:title="Configurações" />
+        app:title="Configurações"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/toolbarConfiguracoes"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="24dp">
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@android:drawable/ic_menu_manage"
+                android:contentDescription="Configurações" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Configurações"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp"
+                android:text="Personalize o tempo do seu Pomodoro"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/etTempoFoco"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Tempo de foco (min)"
+                android:inputType="number" />
+
+            <EditText
+                android:id="@+id/etPausaCurta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:hint="Pausa curta (min)"
+                android:inputType="number" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSalvarConfiguracoes"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="24dp"
+                android:text="Salvar Configurações"
+                app:cornerRadius="12dp"
+                app:backgroundTint="@color/coral_light" />
+
+        </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
+        android:id="@+id/bottomNav"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/bg_menu_flutuante"
+        android:elevation="10dp"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <EditText
-            android:id="@+id/etTempoFoco"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:hint="Tempo de foco (min)"
-            android:textColorHint="@color/text_muted"
-            android:textColor="@color/text_dark"
-            android:inputType="number" />
+        <ImageButton
+            android:id="@+id/btnNavInicio"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:padding="12dp"
+            android:scaleType="fitCenter"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_nav_inicio"
+            app:tint="@color/text_muted" />
 
-        <EditText
-            android:id="@+id/etPausaCurta"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:hint="Pausa curta (min)"
-            android:textColorHint="@color/text_muted"
-            android:textColor="@color/text_dark"
-            android:inputType="number" />
+        <ImageButton
+            android:id="@+id/btnNavHistorico"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:padding="12dp"
+            android:scaleType="fitCenter"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_nav_historico"
+            app:tint="@color/text_muted" />
 
+        <ImageButton
+            android:id="@+id/btnNavRelatorio"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:padding="12dp"
+            android:scaleType="fitCenter"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_nav_relatorio"
+            app:tint="@color/text_muted" />
 
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSalvarConfiguracoes"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="24dp"
-            android:text="Salvar Configurações"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:backgroundTint="@color/coral_light"
-            android:textColor="@color/bg_white"
-            app:cornerRadius="10dp" />
+        <ImageButton
+            android:id="@+id/btnNavConfig"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:padding="12dp"
+            android:scaleType="fitCenter"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_nav_config"
+            app:tint="@color/text_muted" />
 
     </LinearLayout>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
