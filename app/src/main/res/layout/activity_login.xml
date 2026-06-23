@@ -3,22 +3,43 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:gravity="center"
+    android:padding="24dp"
+    android:layout_marginTop="32dp"
+    android:layout_marginBottom="32dp"
+    android:background="#F5F5F5">
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="24dp"
+        android:src="@android:drawable/ic_menu_myplaces"
+        android:contentDescription="Ícone de usuário" />
 
     <TextView
         android:id="@+id/tvTituloLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login do Usuário"
-        android:textSize="24sp"
-        android:textStyle="bold" />
+        android:text="Bem-vindo!"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="#333333" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Faça login para continuar"
+        android:textSize="16sp"
+        android:textColor="#777777"
+        android:layout_marginBottom="24dp" />
 
     <EditText
         android:id="@+id/etUsuario"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:hint="Nome do usuário"
+        android:hint="Usuário"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text"
         android:inputType="text" />
 
     <EditText
@@ -27,17 +48,18 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:hint="Senha"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text"
         android:inputType="textPassword" />
 
     <Button
-
         android:id="@+id/btnEntrar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="24dp"
         android:text="Entrar"
-        android:backgroundTint="@color/coral_light"
-        />
+        android:textStyle="bold"
+        android:backgroundTint="@color/coral_light" />
 
     <Button
         android:id="@+id/btnCadastrar"
@@ -45,7 +67,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="Cadastrar"
-        android:backgroundTint="@color/coral_light"
-        />
+        android:backgroundTint="@color/coral_light" />
 
 </LinearLayout>

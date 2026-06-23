@@ -37,6 +37,8 @@ public class RelatorioActivity extends AppCompatActivity {
         carregarRelatorio();
 
         btnCompartilharRelatorio.setOnClickListener(v -> compartilharRelatorio());
+
+        configurarMenuInferior("RELATORIO");
     }
 
     @Override
@@ -87,5 +89,72 @@ public class RelatorioActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    private void configurarMenuInferior(String telaAtual) {
+        android.widget.ImageButton btnInicio = findViewById(R.id.btnNavInicio);
+        android.widget.ImageButton btnHistorico = findViewById(R.id.btnNavHistorico);
+        android.widget.ImageButton btnRelatorio = findViewById(R.id.btnNavRelatorio);
+        android.widget.ImageButton btnConfig = findViewById(R.id.btnNavConfig);
+
+        btnInicio.setBackgroundResource(android.R.color.transparent);
+        btnInicio.setColorFilter(getColor(R.color.text_muted));
+        btnHistorico.setBackgroundResource(android.R.color.transparent);
+        btnHistorico.setColorFilter(getColor(R.color.text_muted));
+        btnRelatorio.setBackgroundResource(android.R.color.transparent);
+        btnRelatorio.setColorFilter(getColor(R.color.text_muted));
+        btnConfig.setBackgroundResource(android.R.color.transparent);
+        btnConfig.setColorFilter(getColor(R.color.text_muted));
+
+        switch (telaAtual) {
+            case "INICIO":
+                btnInicio.setBackgroundResource(R.drawable.bg_item_selecionado);
+                btnInicio.setColorFilter(getColor(R.color.coral_primary));
+                break;
+            case "HISTORICO":
+                btnHistorico.setBackgroundResource(R.drawable.bg_item_selecionado);
+                btnHistorico.setColorFilter(getColor(R.color.coral_primary));
+                break;
+            case "RELATORIO":
+                btnRelatorio.setBackgroundResource(R.drawable.bg_item_selecionado);
+                btnRelatorio.setColorFilter(getColor(R.color.coral_primary));
+                break;
+            case "CONFIG":
+                btnConfig.setBackgroundResource(R.drawable.bg_item_selecionado);
+                btnConfig.setColorFilter(getColor(R.color.coral_primary));
+                break;
+        }
+
+        btnInicio.setOnClickListener(v -> {
+            if (!telaAtual.equals("INICIO")) {
+                android.content.Intent intent = new android.content.Intent(this, MainActivity.class);
+                intent.setFlags(android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+            }
+        });
+
+        btnHistorico.setOnClickListener(v -> {
+            if (!telaAtual.equals("HISTORICO")) {
+                android.content.Intent intent = new android.content.Intent(this, HistoricoActivity.class);
+                intent.setFlags(android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+            }
+        });
+
+        btnRelatorio.setOnClickListener(v -> {
+            if (!telaAtual.equals("RELATORIO")) {
+                android.content.Intent intent = new android.content.Intent(this, RelatorioActivity.class);
+                intent.setFlags(android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+            }
+        });
+
+        btnConfig.setOnClickListener(v -> {
+            if (!telaAtual.equals("CONFIG")) {
+                android.content.Intent intent = new android.content.Intent(this, ConfiguracoesActivity.class);
+                intent.setFlags(android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+            }
+        });
     }
 }

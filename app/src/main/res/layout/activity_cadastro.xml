@@ -4,6 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:layout_marginTop="32dp"
+    android:layout_marginBottom="32dp"
     android:background="@color/bg_white">
 
     <androidx.appcompat.widget.Toolbar
@@ -13,45 +15,70 @@
         android:background="@color/coral_primary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:title="Criar Conta" />
+        app:title="Cadastro" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="24dp"
-        android:gravity="center_vertical">
+        android:gravity="center"
+        android:padding="24dp">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginBottom="20dp"
+            android:src="@android:drawable/ic_menu_add"
+            android:contentDescription="Cadastro" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Criar Conta"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_dark" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            android:text="Preencha os dados abaixo"
+            android:textSize="16sp"
+            android:textColor="@color/text_muted" />
 
         <EditText
             android:id="@+id/etNovoUsuario"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Escolha um usuário"
-            android:textColorHint="@color/text_muted"
+            android:hint="Nome de usuário"
+            android:inputType="text"
             android:textColor="@color/text_dark"
-            android:inputType="text" />
+            android:textColorHint="@color/text_muted" />
 
         <EditText
             android:id="@+id/etNovaSenha"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="Digite uma senha"
-            android:textColorHint="@color/text_muted"
+            android:hint="Senha"
+            android:inputType="textPassword"
             android:textColor="@color/text_dark"
-            android:inputType="textPassword" />
+            android:textColorHint="@color/text_muted" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnFinalizarCadastro"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
+            android:layout_height="56dp"
             android:layout_marginTop="24dp"
-            android:text="Cadastrar e Entrar"
-            android:textSize="16sp"
+            android:text="Cadastrar"
             android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
             app:backgroundTint="@color/coral_light"
-            android:textColor="@color/bg_white"
-            app:cornerRadius="10dp" />
+            app:cornerRadius="12dp" />
 
     </LinearLayout>
+
 </LinearLayout>

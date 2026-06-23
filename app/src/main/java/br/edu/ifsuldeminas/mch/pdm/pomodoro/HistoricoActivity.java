@@ -1,15 +1,13 @@
 package br.edu.ifsuldeminas.mch.pdm.pomodoro;
 
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.AdapterView;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -19,7 +17,7 @@ import java.util.List;
 
 public class HistoricoActivity extends AppCompatActivity {
 
-    private TextView tvVazioHistorico;
+    private LinearLayout layoutHistoricoVazio;
     private ListView listViewHistorico;
     private DatabaseHelper databaseHelper;
 
@@ -31,11 +29,9 @@ public class HistoricoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_historico);
 
-        tvVazioHistorico = findViewById(R.id.tvVazioHistorico);
+        layoutHistoricoVazio = findViewById(R.id.layoutHistoricoVazio);
         listViewHistorico = findViewById(R.id.listViewHistorico);
         databaseHelper = new DatabaseHelper(this);
-
-        registerForContextMenu(listViewHistorico);
 
         androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbarHistorico);
         setSupportActionBar(toolbar);
@@ -45,6 +41,7 @@ public class HistoricoActivity extends AppCompatActivity {
         }
 
         carregarHistorico();
+        configurarMenuInferior("HISTORICO");
     }
 
     @Override
@@ -58,13 +55,12 @@ public class HistoricoActivity extends AppCompatActivity {
         itensHistorico = new ArrayList<>();
 
         if (listaSessoes == null || listaSessoes.isEmpty()) {
-            tvVazioHistorico.setVisibility(View.VISIBLE);
+            layoutHistoricoVazio.setVisibility(View.VISIBLE);
             listViewHistorico.setVisibility(View.GONE);
-            tvVazioHistorico.setText("Nenhuma sessão cadastrada ainda.");
             return;
         }
 
-        tvVazioHistorico.setVisibility(View.GONE);
+        layoutHistoricoVazio.setVisibility(View.GONE);
         listViewHistorico.setVisibility(View.VISIBLE);
 
         for (SessaoEstudo sessao : listaSessoes) {
@@ -83,38 +79,99 @@ public class HistoricoActivity extends AppCompatActivity {
         );
 
         listViewHistorico.setAdapter(adapter);
-    }
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        getMenuInflater().inflate(R.menu.menu_contexto_historico, menu);
-    }
+        // Clique curto: avisa o utilizador de como apagar
+        listViewHistorico.setOnItemClickListener((parent, view, position, id) -> {
+            Toast.makeText(HistoricoActivity.this, "Pressione e segure numa sessão para a apagar.", Toast.LENGTH_SHORT).show();
+        });
 
-    @Override
-    public boolean onContextItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_deletar) {
-            AdapterView.AdapterContextMenuInfo info =
-                    (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-
-            int posicao = info.position;
-
-            if (posicao >= 0 && posicao < listaSessoes.size()) {
-                SessaoEstudo sessaoSelecionada = listaSessoes.get(posicao);
-                databaseHelper.excluirSessao(sessaoSelecionada.getId());
-                carregarHistorico();
-
-                Snackbar.make(listViewHistorico, "Registro excluído com sucesso!", Snackbar.LENGTH_SHORT).show();
-                return true;
-            }
-        }
-
-        return super.onContextItemSelected(item);
+        // Clique longo: abre o pop-up de confirmação para apagar a sessão
+        listViewHistorico.setOnItemLongClickListener((parent, view, position, id) -> {
+            new AlertDialog.Builder(HistoricoActivity.this)
+                    .setTitle("Apagar Sessão")
+                    .setMessage("Tem certeza que deseja apagar esta sessão do histórico?")
+                    .setPositiveButton("Sim", (dialog, which) -> {
+                        SessaoEstudo sessaoSelecionada = listaSessoes.get(position);
+                        databaseHelper.excluirSessao(sessaoSelecionada.getId());
+                        carregarHistorico(); // Atualiza a lista na hora
+                        Snackbar.make(listViewHistorico, "Sessão apagada com sucesso!", Snackbar.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton("Não", null)
+                    .show();
+            return true;
+        });
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    private void configurarMenuInferior(String telaAtual) {
+        android.widget.ImageButton btnInicio = findViewById(R.id.btnNavInicio);
+        android.widget.ImageButton btnHistorico = findViewById(R.id.btnNavHistorico);
+        android.widget.ImageButton btnRelatorio = findViewById(R.id.btnNavRelatorio);
+        android.widget.ImageButton btnConfig = findViewById(R.id.btnNavConfig);
+
+        btnInicio.setBackgroundResource(android.R.color.transparent);
+        btnInicio.setColorFilter(getColor(R.color.text_muted));
+        btnHistorico.setBackgroundResource(android.R.color.transparent);
+        btnHistorico.setColorFilter(getColor(R.color.text_muted));
+        btnRelatorio.setBackgroundResource(android.R.color.transparent);
+        btnRelatorio.setColorFilter(getColor(R.color.text_muted));
+        btnConfig.setBackgroundResource(android.R.color.transparent);
+        btnConfig.setColorFilter(getColor(R.color.text_muted));
+
+        switch (telaAtual) {
+            case "INICIO":
+                btnInicio.setBackgroundResource(R.drawable.bg_item_selecionado);
+                btnInicio.setColorFilter(getColor(R.color.coral_primary));
+                break;
+            case "HISTORICO":
+                btnHistorico.setBackgroundResource(R.drawable.bg_item_selecionado);
+                btnHistorico.setColorFilter(getColor(R.color.coral_primary));
+                break;
+            case "RELATORIO":
+                btnRelatorio.setBackgroundResource(R.drawable.bg_item_selecionado);
+                btnRelatorio.setColorFilter(getColor(R.color.coral_primary));
+                break;
+            case "CONFIG":
+                btnConfig.setBackgroundResource(R.drawable.bg_item_selecionado);
+                btnConfig.setColorFilter(getColor(R.color.coral_primary));
+                break;
+        }
+
+        btnInicio.setOnClickListener(v -> {
+            if (!telaAtual.equals("INICIO")) {
+                android.content.Intent intent = new android.content.Intent(this, MainActivity.class);
+                intent.setFlags(android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+            }
+        });
+
+        btnHistorico.setOnClickListener(v -> {
+            if (!telaAtual.equals("HISTORICO")) {
+                android.content.Intent intent = new android.content.Intent(this, HistoricoActivity.class);
+                intent.setFlags(android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+            }
+        });
+
+        btnRelatorio.setOnClickListener(v -> {
+            if (!telaAtual.equals("RELATORIO")) {
+                android.content.Intent intent = new android.content.Intent(this, RelatorioActivity.class);
+                intent.setFlags(android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+            }
+        });
+
+        btnConfig.setOnClickListener(v -> {
+            if (!telaAtual.equals("CONFIG")) {
+                android.content.Intent intent = new android.content.Intent(this, ConfiguracoesActivity.class);
+                intent.setFlags(android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+            }
+        });
     }
 }

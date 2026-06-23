@@ -1,36 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="24dp"
-    android:background="#FFF8F0">
+    android:padding="32dp"
+    android:background="@color/bg_gray_light">
+
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginBottom="24dp"
+        android:src="@android:drawable/ic_lock_idle_alarm"
+        app:tint="@color/coral_primary"
+        android:contentDescription="Ícone de alarme" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tempo Esgotado!"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="@color/coral_dark"
+        android:gravity="center"
+        android:layout_marginBottom="8dp" />
 
     <TextView
         android:id="@+id/tvMensagemAlarme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tempo finalizado!"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="#4E342E"
+        android:text="O que deseja fazer agora?"
+        android:textSize="18sp"
+        android:textColor="@color/text_dark"
         android:gravity="center"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="48dp" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAcao"
-        android:layout_width="220dp"
-        android:layout_height="wrap_content"
-        android:text="Iniciar pausa"
-        android:textAllCaps="false"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:text="Iniciar Pausa"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cornerRadius="12dp"
+        app:backgroundTint="@color/coral_primary"
         android:layout_marginBottom="16dp" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnEncerrarSessao"
-        android:layout_width="220dp"
-        android:layout_height="wrap_content"
-        android:text="Encerrar sessão"
-        android:textAllCaps="false" />
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:text="Encerrar Sessão"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/coral_dark"
+        app:strokeColor="@color/coral_dark"
+        app:strokeWidth="2dp"
+        app:cornerRadius="12dp" />
 
 </LinearLayout>
