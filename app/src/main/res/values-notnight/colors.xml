@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="coral_primary">#FF7F50</color>
+    <color name="coral_dark">#E05A47</color>
+    <color name="coral_light">#FF9E91</color>
+
+    <color name="bg_white">#121212</color> <color name="bg_gray_light">#1E1E1E</color> <color name="text_dark">#FFFFFF</color> <color name="text_muted">#AAB4BE</color> </resources>

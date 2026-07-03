@@ -19,7 +19,7 @@ public class HistoricoActivity extends AppCompatActivity {
 
     private LinearLayout layoutHistoricoVazio;
     private ListView listViewHistorico;
-    private DatabaseHelper databaseHelper;
+    private SessaoDao sessaoDao; // Usando SessaoDao do Room
 
     private List<SessaoEstudo> listaSessoes;
     private ArrayList<String> itensHistorico;
@@ -31,7 +31,9 @@ public class HistoricoActivity extends AppCompatActivity {
 
         layoutHistoricoVazio = findViewById(R.id.layoutHistoricoVazio);
         listViewHistorico = findViewById(R.id.listViewHistorico);
-        databaseHelper = new DatabaseHelper(this);
+
+        // Inicializando o DAO
+        sessaoDao = AppDatabase.getInstance(this).sessaoDao();
 
         androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbarHistorico);
         setSupportActionBar(toolbar);
@@ -51,7 +53,8 @@ public class HistoricoActivity extends AppCompatActivity {
     }
 
     private void carregarHistorico() {
-        listaSessoes = databaseHelper.listarSessoes();
+        // Chamada direta ao DAO
+        listaSessoes = sessaoDao.listarSessoes();
         itensHistorico = new ArrayList<>();
 
         if (listaSessoes == null || listaSessoes.isEmpty()) {
@@ -80,19 +83,18 @@ public class HistoricoActivity extends AppCompatActivity {
 
         listViewHistorico.setAdapter(adapter);
 
-        // Clique curto: avisa o utilizador de como apagar
         listViewHistorico.setOnItemClickListener((parent, view, position, id) -> {
             Toast.makeText(HistoricoActivity.this, "Pressione e segure numa sessão para a apagar.", Toast.LENGTH_SHORT).show();
         });
 
-        // Clique longo: abre o pop-up de confirmação para apagar a sessão
         listViewHistorico.setOnItemLongClickListener((parent, view, position, id) -> {
             new AlertDialog.Builder(HistoricoActivity.this)
                     .setTitle("Apagar Sessão")
                     .setMessage("Tem certeza que deseja apagar esta sessão do histórico?")
                     .setPositiveButton("Sim", (dialog, which) -> {
                         SessaoEstudo sessaoSelecionada = listaSessoes.get(position);
-                        databaseHelper.excluirSessao(sessaoSelecionada.getId());
+                        // Excluindo diretamente com o DAO do Room
+                        sessaoDao.excluirSessao(sessaoSelecionada.getId());
                         carregarHistorico(); // Atualiza a lista na hora
                         Snackbar.make(listViewHistorico, "Sessão apagada com sucesso!", Snackbar.LENGTH_SHORT).show();
                     })

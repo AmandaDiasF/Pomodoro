@@ -2,6 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+
+    <item
+        android:id="@+id/menu_tema"
+        android:title="Modo Escuro"
+        android:icon="@drawable/ic_modo_tema"
+        app:showAsAction="always" />
+
     <item
         android:id="@+id/menu_compartilhar"
         android:title="Partilhar"

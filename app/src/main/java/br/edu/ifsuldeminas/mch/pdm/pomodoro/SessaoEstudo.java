@@ -1,18 +1,34 @@
 package br.edu.ifsuldeminas.mch.pdm.pomodoro;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "sessoes")
 public class SessaoEstudo {
+
+    @PrimaryKey(autoGenerate = true)
     private int id;
+
     private String materia;
-    private String tipo; // Foco, Pausa Curta, Pausa Longa
+    private String tipo;
+
+    @ColumnInfo(name = "duracao_planejada")
     private int duracaoPlanejada;
+
+    @ColumnInfo(name = "duracao_realizada")
     private int duracaoRealizada;
+
+    @ColumnInfo(name = "data_inicio")
     private String dataInicio;
+
+    @ColumnInfo(name = "data_fim")
     private String dataFim;
-    private String status; // Concluído, Interrompido
+
+    private String status;
 
     public SessaoEstudo() {}
 
-    // Getters e Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
