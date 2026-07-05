@@ -11,7 +11,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 public class ConfiguracoesActivity extends AppCompatActivity {
 
-    private EditText etTempoFoco, etPausaCurta, etPausaLonga;
+    private EditText etTempoFoco, etPausaCurta;
     private MaterialButton btnSalvarConfiguracoes;
     private PreferencesHelper preferencesHelper;
 
@@ -40,19 +40,35 @@ public class ConfiguracoesActivity extends AppCompatActivity {
         btnSalvarConfiguracoes.setOnClickListener(v -> {
             String focoStr = etTempoFoco.getText().toString().trim();
             String pausaCurtaStr = etPausaCurta.getText().toString().trim();
-            String pausaLongaStr = etPausaLonga.getText().toString().trim();
 
-            if (focoStr.isEmpty() || pausaCurtaStr.isEmpty() || pausaLongaStr.isEmpty()) {
+            if (focoStr.isEmpty() || pausaCurtaStr.isEmpty()) {
                 Snackbar.make(v, "Preencha todos os campos.", Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
-            int tempoFoco = Integer.parseInt(focoStr);
-            int pausaCurta = Integer.parseInt(pausaCurtaStr);
+            try {
+                int tempoFoco = Integer.parseInt(focoStr);
+                int pausaCurta = Integer.parseInt(pausaCurtaStr);
 
-            preferencesHelper.salvarConfiguracoesTempo(tempoFoco, pausaCurta);
+                // Validação 1: Impede números negativos ou zero
+                if (tempoFoco <= 0 || pausaCurta <= 0) {
+                    Snackbar.make(v, "Os tempos devem ser maiores que zero.", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
 
-            Snackbar.make(v, "Configurações salvas com sucesso!", Snackbar.LENGTH_SHORT).show();
+                // Validação 2: Impede números absurdamente altos (ex: foco > 120min, pausa > 60min)
+                if (tempoFoco > 120 || pausaCurta > 60) {
+                    Snackbar.make(v, "O foco máximo é 120 min e a pausa 60 min.", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
+
+                preferencesHelper.salvarConfiguracoesTempo(tempoFoco, pausaCurta);
+                Snackbar.make(v, "Configurações salvas com sucesso!", Snackbar.LENGTH_SHORT).show();
+
+            } catch (NumberFormatException e) {
+                // Previne que o app feche se o usuário conseguir digitar algo que não seja um número válido
+                Snackbar.make(v, "Por favor, insira apenas números válidos.", Snackbar.LENGTH_SHORT).show();
+            }
         });
 
         configurarMenuInferior("CONFIG");

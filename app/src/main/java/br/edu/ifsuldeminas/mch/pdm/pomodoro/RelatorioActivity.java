@@ -2,6 +2,9 @@ package br.edu.ifsuldeminas.mch.pdm.pomodoro;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -9,13 +12,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RelatorioActivity extends AppCompatActivity {
 
     private TextView tvVazioRelatorio;
+    private ListView lvRelatorio;
     private MaterialButton btnCompartilharRelatorio;
-    private SessaoDao sessaoDao; // Usando SessaoDao do Room diretamente
+    private SessaoDao sessaoDao;
     private List<RelatorioMateria> listaRelatorio;
 
     @Override
@@ -24,6 +29,7 @@ public class RelatorioActivity extends AppCompatActivity {
         setContentView(R.layout.activity_relatorio);
 
         tvVazioRelatorio = findViewById(R.id.tvVazioRelatorio);
+        lvRelatorio = findViewById(R.id.lvRelatorio);
         btnCompartilharRelatorio = findViewById(R.id.btnCompartilharRelatorio);
 
         // Inicializando o DAO
@@ -54,18 +60,29 @@ public class RelatorioActivity extends AppCompatActivity {
         listaRelatorio = sessaoDao.buscarRelatorioPorMateria();
 
         if (listaRelatorio == null || listaRelatorio.isEmpty()) {
-            tvVazioRelatorio.setText("Ainda não há dados para o relatório.");
+            tvVazioRelatorio.setVisibility(View.VISIBLE);
+            lvRelatorio.setVisibility(View.GONE);
             return;
         }
 
-        StringBuilder textoRelatorio = new StringBuilder();
+        tvVazioRelatorio.setVisibility(View.GONE);
+        lvRelatorio.setVisibility(View.VISIBLE);
+
+        ArrayList<String> itensRelatorio = new ArrayList<>();
 
         for (RelatorioMateria item : listaRelatorio) {
-            textoRelatorio.append("Matéria: ").append(item.getMateria()).append("\n");
-            textoRelatorio.append("Total estudado: ").append(item.getTotalMinutos()).append(" min\n\n");
+            String texto = "Matéria: " + item.getMateria() + "\n" +
+                    "Total estudado: " + item.getTotalMinutos() + " min";
+            itensRelatorio.add(texto);
         }
 
-        tvVazioRelatorio.setText(textoRelatorio.toString());
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_list_item_1,
+                itensRelatorio
+        );
+
+        lvRelatorio.setAdapter(adapter);
     }
 
     private void compartilharRelatorio() {
@@ -75,7 +92,7 @@ public class RelatorioActivity extends AppCompatActivity {
         }
 
         StringBuilder mensagem = new StringBuilder();
-        mensagem.append("Meu Relatório de Estudos no Pomodoro Educacional:\n\n");
+        mensagem.append("O meu Relatório de Estudos no Pomodoro Educacional:\n\n");
 
         for (RelatorioMateria item : listaRelatorio) {
             mensagem.append("Matéria: ").append(item.getMateria()).append("\n");
@@ -85,7 +102,7 @@ public class RelatorioActivity extends AppCompatActivity {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, mensagem.toString());
-        startActivity(Intent.createChooser(shareIntent, "Compartilhar relatório via"));
+        startActivity(Intent.createChooser(shareIntent, "Partilhar relatório via"));
     }
 
     @Override
