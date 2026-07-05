@@ -36,3 +36,4 @@ signing.properties
 
 # Profiling
 *.hprof
+google-services.json
