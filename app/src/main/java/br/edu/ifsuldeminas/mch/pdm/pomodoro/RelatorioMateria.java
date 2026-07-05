@@ -1,7 +1,11 @@
 package br.edu.ifsuldeminas.mch.pdm.pomodoro;
 
+import androidx.room.ColumnInfo;
+
 public class RelatorioMateria {
     private String materia;
+
+    @ColumnInfo(name = "total_minutos")
     private int totalMinutos;
 
     public RelatorioMateria(String materia, int totalMinutos) {

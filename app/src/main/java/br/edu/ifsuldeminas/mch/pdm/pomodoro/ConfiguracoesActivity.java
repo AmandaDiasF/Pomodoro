@@ -11,7 +11,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 public class ConfiguracoesActivity extends AppCompatActivity {
 
-    private EditText etTempoFoco, etPausaCurta;
+    private EditText etTempoFoco, etPausaCurta, etPausaLonga;
     private MaterialButton btnSalvarConfiguracoes;
     private PreferencesHelper preferencesHelper;
 
@@ -40,8 +40,9 @@ public class ConfiguracoesActivity extends AppCompatActivity {
         btnSalvarConfiguracoes.setOnClickListener(v -> {
             String focoStr = etTempoFoco.getText().toString().trim();
             String pausaCurtaStr = etPausaCurta.getText().toString().trim();
+            String pausaLongaStr = etPausaLonga.getText().toString().trim();
 
-            if (focoStr.isEmpty() || pausaCurtaStr.isEmpty()) {
+            if (focoStr.isEmpty() || pausaCurtaStr.isEmpty() || pausaLongaStr.isEmpty()) {
                 Snackbar.make(v, "Preencha todos os campos.", Snackbar.LENGTH_SHORT).show();
                 return;
             }

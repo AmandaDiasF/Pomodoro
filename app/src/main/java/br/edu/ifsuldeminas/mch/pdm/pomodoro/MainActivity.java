@@ -15,6 +15,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
 import java.text.SimpleDateFormat;
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean emModoFoco = true;
 
     private PreferencesHelper preferencesHelper;
-    private DatabaseHelper databaseHelper;
+    private SessaoDao sessaoDao;
 
     private String dataInicioSessao = "";
     private int totalMinutosFocoConcluidos = 0;
@@ -47,14 +48,23 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 1. Inicializamos as preferências primeiro
+        preferencesHelper = new PreferencesHelper(this);
+
+        // 2. Aplicamos o tema correto antes de o ecrã ser desenhado
+        if (preferencesHelper.isModoEscuro()) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = findViewById(R.id.toolbarMain);
         setSupportActionBar(toolbar);
 
-        preferencesHelper = new PreferencesHelper(this);
-        databaseHelper = new DatabaseHelper(this);
+        sessaoDao = AppDatabase.getInstance(this).sessaoDao();
 
         etMateria = findViewById(R.id.etMateria);
         tvTimer = findViewById(R.id.tvTimer);
@@ -83,15 +93,69 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-        carregarTemposSalvos();
-        definirModoFoco();
-
         btnIniciar.setOnClickListener(v -> iniciarTimer());
         btnPausar.setOnClickListener(v -> pausarTimer());
         btnCancelar.setOnClickListener(v -> cancelarTimer());
         btnFinalizarEstudo.setOnClickListener(v -> finalizarEstudo());
 
         configurarMenuInferior("INICIO");
+
+        // 3. Restauração do estado (previne reinício do cronômetro ao mudar o tema ou girar a tela)
+        if (savedInstanceState != null) {
+            timerRodando = savedInstanceState.getBoolean("timerRodando", false);
+            emModoFoco = savedInstanceState.getBoolean("emModoFoco", true);
+            tempoFocoEmMillis = savedInstanceState.getLong("tempoFocoEmMillis", 25 * 60 * 1000L);
+            tempoPausaEmMillis = savedInstanceState.getLong("tempoPausaEmMillis", 5 * 60 * 1000L);
+            dataInicioSessao = savedInstanceState.getString("dataInicioSessao", "");
+            totalMinutosFocoConcluidos = savedInstanceState.getInt("totalMinutosFocoConcluidos", 0);
+            totalMinutosPausaConcluidos = savedInstanceState.getInt("totalMinutosPausaConcluidos", 0);
+
+            if (timerRodando) {
+                long tempoAlvoFim = savedInstanceState.getLong("tempoAlvoFimEmMillis", System.currentTimeMillis() + savedInstanceState.getLong("tempoRestanteEmMillis", tempoFocoEmMillis));
+                tempoRestanteEmMillis = tempoAlvoFim - System.currentTimeMillis();
+
+                if (tempoRestanteEmMillis > 0) {
+                    retomarTimer();
+                } else {
+                    timerRodando = false;
+                    tempoRestanteEmMillis = 0;
+                    atualizarTimer();
+                    atualizarProgressoCircular();
+                    atualizarBotoes();
+                }
+            } else {
+                tempoRestanteEmMillis = savedInstanceState.getLong("tempoRestanteEmMillis", emModoFoco ? tempoFocoEmMillis : tempoPausaEmMillis);
+                atualizarTimer();
+                atualizarProgressoCircular();
+                atualizarBotoes();
+            }
+        } else {
+            carregarTemposSalvos();
+            definirModoFoco();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("timerRodando", timerRodando);
+        outState.putBoolean("emModoFoco", emModoFoco);
+        outState.putLong("tempoRestanteEmMillis", tempoRestanteEmMillis);
+        outState.putLong("tempoFocoEmMillis", tempoFocoEmMillis);
+        outState.putLong("tempoPausaEmMillis", tempoPausaEmMillis);
+        outState.putString("dataInicioSessao", dataInicioSessao);
+        outState.putInt("totalMinutosFocoConcluidos", totalMinutosFocoConcluidos);
+        outState.putInt("totalMinutosPausaConcluidos", totalMinutosPausaConcluidos);
+        // Salvamos o tempo final alvo no relógio do sistema para manter a precisão exata durante a recriação
+        outState.putLong("tempoAlvoFimEmMillis", System.currentTimeMillis() + tempoRestanteEmMillis);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
     }
 
     @Override
@@ -99,12 +163,17 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         if (!timerRodando) {
+            long tempoAnteriorFoco = tempoFocoEmMillis;
+            long tempoAnteriorPausa = tempoPausaEmMillis;
             carregarTemposSalvos();
 
-            if (emModoFoco) {
-                definirModoFoco();
-            } else {
-                definirModoPausa();
+            // Evita redefinir o tempo se o timer estiver pausado no meio da sessão
+            if (tempoRestanteEmMillis == (emModoFoco ? tempoAnteriorFoco : tempoAnteriorPausa)) {
+                if (emModoFoco) {
+                    definirModoFoco();
+                } else {
+                    definirModoPausa();
+                }
             }
         }
     }
@@ -153,6 +222,17 @@ public class MainActivity extends AppCompatActivity {
             dataInicioSessao = getDataHoraAtual();
         }
 
+        executarContagemRegressiva();
+    }
+
+    private void retomarTimer() {
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+        executarContagemRegressiva();
+    }
+
+    private void executarContagemRegressiva() {
         countDownTimer = new CountDownTimer(tempoRestanteEmMillis, 50) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -236,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
         sessao.setDataFim(getDataHoraAtual());
         sessao.setStatus("Concluído");
 
-        long id = databaseHelper.inserirSessao(sessao);
+        long id = sessaoDao.inserirSessao(sessao);
 
         if (id > 0) {
             Toast.makeText(this, "Sessão salva com sucesso!", Toast.LENGTH_SHORT).show();
@@ -273,6 +353,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        MenuItem itemTema = menu.findItem(R.id.menu_tema);
+        if (preferencesHelper.isModoEscuro()) {
+            itemTema.setTitle("Modo Claro");
+        } else {
+            itemTema.setTitle("Modo Escuro");
+        }
+
         return true;
     }
 
@@ -280,11 +368,25 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.menu_sair) {
+        if (id == R.id.menu_tema) {
+            boolean isEscuroAtual = preferencesHelper.isModoEscuro();
+            boolean novoModo = !isEscuroAtual;
+
+            preferencesHelper.setModoEscuro(novoModo);
+
+            if (novoModo) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            }
+            return true;
+
+        } else if (id == R.id.menu_sair) {
             preferencesHelper.setLogin(false);
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return true;
+
         } else if (id == R.id.menu_compartilhar) {
             startActivity(new Intent(this, RelatorioActivity.class));
             return true;

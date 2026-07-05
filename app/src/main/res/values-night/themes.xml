@@ -1,7 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.Pomodoro" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@color/coral_primary</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+
+        <item name="android:windowBackground">@color/bg_gray_light</item>
+        <item name="android:colorBackground">@color/bg_gray_light</item>
+        <item name="colorOnBackground">@color/text_dark</item>
+
+        <item name="colorSurface">@color/bg_white</item>
+        <item name="colorOnSurface">@color/text_dark</item>
+        <item name="colorOnSurfaceVariant">@color/text_muted</item>
+
+        <item name="android:editTextColor">@color/text_dark</item>
+        <item name="android:textColorHint">@color/text_muted</item>
+        <item name="android:textColor">@color/text_dark</item>
+    </style>
+
+    <style name="Theme.Pomodoro" parent="Base.Theme.Pomodoro" />
+
+    <style name="EstiloMenuPomodoro" parent="ThemeOverlay.Material3.Dark">
+        <item name="android:colorBackground">#121212</item>
+        <item name="colorSurface">#121212</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="colorOnSurface">#FFFFFF</item>
     </style>
 </resources>

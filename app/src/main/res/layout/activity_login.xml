@@ -7,7 +7,7 @@
     android:padding="24dp"
     android:layout_marginTop="32dp"
     android:layout_marginBottom="32dp"
-    android:background="#F5F5F5">
+    android:background="@color/bg_gray_light">
 
     <ImageView
         android:layout_width="100dp"
@@ -23,14 +23,14 @@
         android:text="Bem-vindo!"
         android:textSize="28sp"
         android:textStyle="bold"
-        android:textColor="#333333" />
+        android:textColor="@color/text_dark" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Faça login para continuar"
         android:textSize="16sp"
-        android:textColor="#777777"
+        android:textColor="@color/text_muted"
         android:layout_marginBottom="24dp" />
 
     <EditText
@@ -40,6 +40,8 @@
         android:hint="Usuário"
         android:padding="12dp"
         android:background="@android:drawable/edit_text"
+        android:textColor="@color/text_dark"
+        android:textColorHint="@color/text_muted"
         android:inputType="text" />
 
     <EditText
@@ -50,6 +52,8 @@
         android:hint="Senha"
         android:padding="12dp"
         android:background="@android:drawable/edit_text"
+        android:textColor="@color/text_dark"
+        android:textColorHint="@color/text_muted"
         android:inputType="textPassword" />
 
     <Button

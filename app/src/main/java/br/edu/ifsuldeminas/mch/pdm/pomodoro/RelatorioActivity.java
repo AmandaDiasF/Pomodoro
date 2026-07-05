@@ -15,7 +15,7 @@ public class RelatorioActivity extends AppCompatActivity {
 
     private TextView tvVazioRelatorio;
     private MaterialButton btnCompartilharRelatorio;
-    private DatabaseHelper databaseHelper;
+    private SessaoDao sessaoDao; // Usando SessaoDao do Room diretamente
     private List<RelatorioMateria> listaRelatorio;
 
     @Override
@@ -25,7 +25,9 @@ public class RelatorioActivity extends AppCompatActivity {
 
         tvVazioRelatorio = findViewById(R.id.tvVazioRelatorio);
         btnCompartilharRelatorio = findViewById(R.id.btnCompartilharRelatorio);
-        databaseHelper = new DatabaseHelper(this);
+
+        // Inicializando o DAO
+        sessaoDao = AppDatabase.getInstance(this).sessaoDao();
 
         androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbarRelatorio);
         setSupportActionBar(toolbar);
@@ -48,7 +50,8 @@ public class RelatorioActivity extends AppCompatActivity {
     }
 
     private void carregarRelatorio() {
-        listaRelatorio = databaseHelper.buscarRelatorioPorMateria();
+        // Chamada direta ao Room para buscar os dados
+        listaRelatorio = sessaoDao.buscarRelatorioPorMateria();
 
         if (listaRelatorio == null || listaRelatorio.isEmpty()) {
             tvVazioRelatorio.setText("Ainda não há dados para o relatório.");
