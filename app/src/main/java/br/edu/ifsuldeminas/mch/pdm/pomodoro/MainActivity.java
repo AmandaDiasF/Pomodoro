@@ -7,9 +7,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ProgressBar;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -18,9 +18,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,12 +51,13 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<Intent> alarmLauncher;
 
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // 1. Inicializamos as preferências primeiro
         preferencesHelper = new PreferencesHelper(this);
 
-        // 2. Aplicamos o tema correto antes de o ecrã ser desenhado
         if (preferencesHelper.isModoEscuro()) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         } else {
@@ -65,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         sessaoDao = AppDatabase.getInstance(this).sessaoDao();
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         etMateria = findViewById(R.id.etMateria);
         tvTimer = findViewById(R.id.tvTimer);
@@ -100,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
 
         configurarMenuInferior("INICIO");
 
-        // 3. Restauração do estado (previne reinício do cronômetro ao mudar o tema ou girar a tela)
         if (savedInstanceState != null) {
             timerRodando = savedInstanceState.getBoolean("timerRodando", false);
             emModoFoco = savedInstanceState.getBoolean("emModoFoco", true);
@@ -111,7 +118,10 @@ public class MainActivity extends AppCompatActivity {
             totalMinutosPausaConcluidos = savedInstanceState.getInt("totalMinutosPausaConcluidos", 0);
 
             if (timerRodando) {
-                long tempoAlvoFim = savedInstanceState.getLong("tempoAlvoFimEmMillis", System.currentTimeMillis() + savedInstanceState.getLong("tempoRestanteEmMillis", tempoFocoEmMillis));
+                long tempoAlvoFim = savedInstanceState.getLong(
+                        "tempoAlvoFimEmMillis",
+                        System.currentTimeMillis() + savedInstanceState.getLong("tempoRestanteEmMillis", tempoFocoEmMillis)
+                );
                 tempoRestanteEmMillis = tempoAlvoFim - System.currentTimeMillis();
 
                 if (tempoRestanteEmMillis > 0) {
@@ -124,7 +134,10 @@ public class MainActivity extends AppCompatActivity {
                     atualizarBotoes();
                 }
             } else {
-                tempoRestanteEmMillis = savedInstanceState.getLong("tempoRestanteEmMillis", emModoFoco ? tempoFocoEmMillis : tempoPausaEmMillis);
+                tempoRestanteEmMillis = savedInstanceState.getLong(
+                        "tempoRestanteEmMillis",
+                        emModoFoco ? tempoFocoEmMillis : tempoPausaEmMillis
+                );
                 atualizarTimer();
                 atualizarProgressoCircular();
                 atualizarBotoes();
@@ -146,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
         outState.putString("dataInicioSessao", dataInicioSessao);
         outState.putInt("totalMinutosFocoConcluidos", totalMinutosFocoConcluidos);
         outState.putInt("totalMinutosPausaConcluidos", totalMinutosPausaConcluidos);
-        // Salvamos o tempo final alvo no relógio do sistema para manter a precisão exata durante a recriação
         outState.putLong("tempoAlvoFimEmMillis", System.currentTimeMillis() + tempoRestanteEmMillis);
     }
 
@@ -167,7 +179,6 @@ public class MainActivity extends AppCompatActivity {
             long tempoAnteriorPausa = tempoPausaEmMillis;
             carregarTemposSalvos();
 
-            // Evita redefinir o tempo se o timer estiver pausado no meio da sessão
             if (tempoRestanteEmMillis == (emModoFoco ? tempoAnteriorFoco : tempoAnteriorPausa)) {
                 if (emModoFoco) {
                     definirModoFoco();
@@ -251,6 +262,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (emModoFoco) {
                     totalMinutosFocoConcluidos += (int) (tempoFocoEmMillis / 60000);
+                    atualizarPerfilFocoConcluido();
                     abrirTelaAlarme(true);
                 } else {
                     totalMinutosPausaConcluidos += (int) (tempoPausaEmMillis / 60000);
@@ -261,6 +273,28 @@ public class MainActivity extends AppCompatActivity {
 
         timerRodando = true;
         atualizarBotoes();
+    }
+
+    private void atualizarPerfilFocoConcluido() {
+        if (mAuth.getCurrentUser() == null) return;
+
+        String uid = mAuth.getCurrentUser().getUid();
+
+        db.collection("usuarios").document(uid)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Long focosAtuais = documentSnapshot.getLong("focosFinalizados");
+                        long novoTotalFocos = (focosAtuais != null ? focosAtuais : 0) + 1;
+                        long novoNivel = (novoTotalFocos / 5) + 1;
+
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("focosFinalizados", novoTotalFocos);
+                        updates.put("nivel", novoNivel);
+
+                        db.collection("usuarios").document(uid).update(updates);
+                    }
+                });
     }
 
     private void pausarTimer() {
@@ -381,9 +415,18 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
 
+        } else if (id == R.id.menu_perfil) {
+            startActivity(new Intent(this, PerfilActivity.class));
+            return true;
+
         } else if (id == R.id.menu_sair) {
-            preferencesHelper.setLogin(false);
-            startActivity(new Intent(this, LoginActivity.class));
+            preferencesHelper.logout();
+            AppDatabase.getInstance(this).clearAllTables();
+            FirebaseAuth.getInstance().signOut();
+
+            Intent intentLogin = new Intent(this, LoginActivity.class);
+            intentLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intentLogin);
             finish();
             return true;
 
@@ -440,32 +483,32 @@ public class MainActivity extends AppCompatActivity {
 
         btnInicio.setOnClickListener(v -> {
             if (!telaAtual.equals("INICIO")) {
-                android.content.Intent intent = new android.content.Intent(this, MainActivity.class);
-                intent.setFlags(android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             }
         });
 
         btnHistorico.setOnClickListener(v -> {
             if (!telaAtual.equals("HISTORICO")) {
-                android.content.Intent intent = new android.content.Intent(this, HistoricoActivity.class);
-                intent.setFlags(android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                Intent intent = new Intent(this, HistoricoActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             }
         });
 
         btnRelatorio.setOnClickListener(v -> {
             if (!telaAtual.equals("RELATORIO")) {
-                android.content.Intent intent = new android.content.Intent(this, RelatorioActivity.class);
-                intent.setFlags(android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                Intent intent = new Intent(this, RelatorioActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             }
         });
 
         btnConfig.setOnClickListener(v -> {
             if (!telaAtual.equals("CONFIG")) {
-                android.content.Intent intent = new android.content.Intent(this, ConfiguracoesActivity.class);
-                intent.setFlags(android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                Intent intent = new Intent(this, ConfiguracoesActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             }
         });

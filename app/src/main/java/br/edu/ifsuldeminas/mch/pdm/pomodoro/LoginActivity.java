@@ -13,17 +13,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etUsuario, etSenha;
     private Button btnEntrar, btnCadastrar;
     private PreferencesHelper preferencesHelper;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         preferencesHelper = new PreferencesHelper(this);
+        mAuth = FirebaseAuth.getInstance();
 
         etUsuario = findViewById(R.id.etUsuario);
         etSenha = findViewById(R.id.etSenha);
@@ -32,31 +38,37 @@ public class LoginActivity extends AppCompatActivity {
 
         solicitarPermissaoNotificacao();
 
-        if (preferencesHelper.isUsuarioLogado()) {
+        FirebaseUser usuarioAtual = mAuth.getCurrentUser();
+        if (usuarioAtual != null) {
+            preferencesHelper.setLogin(true);
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
             return;
         }
 
         btnEntrar.setOnClickListener(v -> {
-            String usuarioDigitado = etUsuario.getText().toString().trim();
+            String emailDigitado = etUsuario.getText().toString().trim();
             String senhaDigitada = etSenha.getText().toString().trim();
 
-            if (usuarioDigitado.isEmpty() || senhaDigitada.isEmpty()) {
-                Toast.makeText(LoginActivity.this, "Preencha usuário e senha.", Toast.LENGTH_SHORT).show();
+            if (emailDigitado.isEmpty() || senhaDigitada.isEmpty()) {
+                Toast.makeText(LoginActivity.this, "Preencha e-mail e senha.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            String usuarioSalvo = preferencesHelper.getNomeUsuario();
-            String senhaSalva = preferencesHelper.getSenha();
-
-            if (usuarioDigitado.equals(usuarioSalvo) && senhaDigitada.equals(senhaSalva)) {
-                preferencesHelper.setLogin(true);
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                finish();
-            } else {
-                Toast.makeText(LoginActivity.this, "Usuário ou senha inválidos.", Toast.LENGTH_SHORT).show();
-            }
+            mAuth.signInWithEmailAndPassword(emailDigitado, senhaDigitada)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            preferencesHelper.setLogin(true);
+                            Toast.makeText(LoginActivity.this, "Login realizado com sucesso!", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            finish();
+                        } else {
+                            String mensagemErro = task.getException() != null
+                                    ? task.getException().getMessage()
+                                    : "Erro ao fazer login.";
+                            Toast.makeText(LoginActivity.this, mensagemErro, Toast.LENGTH_LONG).show();
+                        }
+                    });
         });
 
         btnCadastrar.setOnClickListener(v -> {

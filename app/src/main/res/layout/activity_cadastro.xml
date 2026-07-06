@@ -14,7 +14,6 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/coral_primary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-
         app:title="Cadastro" />
 
     <LinearLayout
@@ -49,11 +48,21 @@
             android:textColor="@color/text_muted" />
 
         <EditText
+            android:id="@+id/etNome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nome"
+            android:inputType="textPersonName"
+            android:textColor="@color/text_dark"
+            android:textColorHint="@color/text_muted" />
+
+        <EditText
             android:id="@+id/etNovoUsuario"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nome de usuário"
-            android:inputType="text"
+            android:layout_marginTop="12dp"
+            android:hint="E-mail"
+            android:inputType="textEmailAddress"
             android:textColor="@color/text_dark"
             android:textColorHint="@color/text_muted" />
 

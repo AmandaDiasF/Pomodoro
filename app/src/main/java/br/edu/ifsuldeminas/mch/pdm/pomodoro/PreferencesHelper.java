@@ -59,7 +59,15 @@ public class PreferencesHelper {
     }
 
     public void logout() {
+        // 1. Guarda o estado atual do tema
+        boolean modoEscuroAtual = isModoEscuro();
+
+        // 2. Limpa TODOS os dados locais salvos (zera tempos de foco, pausa e credenciais locais)
+        editor.clear();
+
+        // 3. Devolve o tema que estava e marca como deslogado
         editor.putBoolean("is_logado", false);
+        editor.putBoolean("modo_escuro", modoEscuroAtual);
         editor.apply();
     }
 
