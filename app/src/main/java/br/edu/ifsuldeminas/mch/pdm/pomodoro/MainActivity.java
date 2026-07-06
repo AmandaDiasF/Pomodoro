@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        MotivacaoNotificationHelper.criarCanalNotificacao(this);
+
         Toolbar toolbar = findViewById(R.id.toolbarMain);
         setSupportActionBar(toolbar);
 
@@ -263,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
                 if (emModoFoco) {
                     totalMinutosFocoConcluidos += (int) (tempoFocoEmMillis / 60000);
                     atualizarPerfilFocoConcluido();
+                    MotivacaoNotificationHelper.mostrarNotificacaoMotivacao(MainActivity.this);
                     abrirTelaAlarme(true);
                 } else {
                     totalMinutosPausaConcluidos += (int) (tempoPausaEmMillis / 60000);

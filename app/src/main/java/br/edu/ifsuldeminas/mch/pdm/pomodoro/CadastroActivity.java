@@ -13,7 +13,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -81,6 +83,11 @@ public class CadastroActivity extends AppCompatActivity {
             mAuth.createUserWithEmailAndPassword(novoEmail, novaSenha)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
+                            if (mAuth.getCurrentUser() == null) {
+                                Toast.makeText(this, "Não foi possível concluir o cadastro. Tente novamente.", Toast.LENGTH_LONG).show();
+                                return;
+                            }
+
                             String uid = mAuth.getCurrentUser().getUid();
 
                             Map<String, Object> perfil = new HashMap<>();
@@ -101,17 +108,84 @@ public class CadastroActivity extends AppCompatActivity {
                                         finish();
                                     })
                                     .addOnFailureListener(e -> {
-                                        Toast.makeText(this, "Erro ao criar perfil na nuvem: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                        Toast.makeText(
+                                                this,
+                                                traduzirErroFirestore(e),
+                                                Toast.LENGTH_LONG
+                                        ).show();
                                     });
 
                         } else {
-                            String mensagemErro = task.getException() != null
-                                    ? task.getException().getMessage()
-                                    : "Erro ao cadastrar usuário.";
+                            String mensagemErro = traduzirErroCadastro(task.getException());
                             Toast.makeText(this, mensagemErro, Toast.LENGTH_LONG).show();
                         }
                     });
         });
+    }
+
+    private String traduzirErroCadastro(Exception exception) {
+        if (exception == null) {
+            return "Não foi possível realizar o cadastro.";
+        }
+
+        if (exception instanceof FirebaseAuthException) {
+            String codigo = ((FirebaseAuthException) exception).getErrorCode();
+
+            switch (codigo) {
+                case "ERROR_INVALID_EMAIL":
+                    return "O e-mail informado é inválido.";
+
+                case "ERROR_EMAIL_ALREADY_IN_USE":
+                    return "Este e-mail já está em uso.";
+
+                case "ERROR_WEAK_PASSWORD":
+                    return "A senha é muito fraca. Use pelo menos 6 caracteres.";
+
+                case "ERROR_OPERATION_NOT_ALLOWED":
+                    return "O cadastro por e-mail e senha não está habilitado no Firebase.";
+
+                case "ERROR_NETWORK_REQUEST_FAILED":
+                    return "Erro de conexão. Verifique sua internet e tente novamente.";
+
+                case "ERROR_TOO_MANY_REQUESTS":
+                    return "Muitas tentativas realizadas. Aguarde um momento e tente novamente.";
+
+                default:
+                    return "Não foi possível realizar o cadastro. Tente novamente.";
+            }
+        }
+
+        if (exception instanceof FirebaseNetworkException) {
+            return "Erro de conexão. Verifique sua internet e tente novamente.";
+        }
+
+        return "Não foi possível realizar o cadastro. Tente novamente.";
+    }
+
+    private String traduzirErroFirestore(Exception exception) {
+        if (exception == null) {
+            return "Erro ao salvar perfil na nuvem.";
+        }
+
+        String mensagem = exception.getMessage();
+
+        if (mensagem != null) {
+            String msg = mensagem.toLowerCase();
+
+            if (msg.contains("permission denied") || msg.contains("missing or insufficient permissions")) {
+                return "Sem permissão para salvar o perfil na nuvem.";
+            }
+
+            if (msg.contains("unavailable")) {
+                return "Serviço indisponível no momento. Tente novamente.";
+            }
+
+            if (msg.contains("network")) {
+                return "Erro de conexão ao salvar na nuvem. Verifique sua internet.";
+            }
+        }
+
+        return "Erro ao salvar perfil na nuvem. Tente novamente.";
     }
 
     @Override
